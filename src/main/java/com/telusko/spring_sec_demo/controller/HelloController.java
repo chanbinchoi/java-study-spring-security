@@ -12,7 +12,7 @@ public class HelloController {
     @GetMapping("hello")
     public String greet(HttpServletRequest request) {
         // 인사말과 고유 세션 ID 결합 반환
-        return "Hello World " + request.getSession().getId();
+        return "Hello World ";
     }
 
     // /about 경로 접속 시 실행
