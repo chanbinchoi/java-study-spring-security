@@ -14,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 // 스프링 설정 클래스
 @Configuration
@@ -25,8 +26,12 @@ public class SecurityConfig {
     @Autowired
     private UserDetailsService userDetailsService;
 
+    @Autowired
+    private JwtFilter jwtFilter;
+
     // 실제 인증 로직 담당 요원 설정
     @Bean
+
     public AuthenticationProvider authProvider() {
         // DB 기반 인증 제공자 생성
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -55,7 +60,8 @@ public class SecurityConfig {
                 // HTTP 기본 인증 사용
                 .httpBasic(Customizer.withDefaults())
                 // 무상태성 세션 정책 적용
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

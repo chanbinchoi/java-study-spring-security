@@ -1,6 +1,7 @@
 package com.telusko.spring_sec_demo.controller;
 
 import com.telusko.spring_sec_demo.model.User;
+import com.telusko.spring_sec_demo.service.JwtService;
 import com.telusko.spring_sec_demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,26 +23,30 @@ public class UserController {
     @Autowired
     private UserService service;
 
+    // JWT 생성 및 관리 서비스 주입
+    @Autowired
+    private JwtService jwtService;
+
     // 회원가입 요청 처리
     @PostMapping("register")
     public User register(@RequestBody User user) {
-        // 사용자 정보 저장 및 결과 반환
+        // 회원 정보 저장 및 객체 반환
         return service.saveUser(user);
     }
 
     // 로그인 요청 처리
     @PostMapping("login")
     public String login(@RequestBody User user) {
-        // 사용자 입력 기반 인증용 토큰 생성
+        // 사용자 입력 정보 기반 인증 토큰 생성
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
 
-        // 인증 성공 여부 확인
+        // 인증 성공 여부 판별
         if (authentication.isAuthenticated())
-            // 로그인 성공 메시지 반환
-            return "Success";
+            // 인증 성공 시 JWT 토큰 생성 및 반환
+            return jwtService.generateToken(user.getUsername());
         else
-            // 로그인 실패 메시지 반환
+            // 인증 실패 시 메시지 반환
             return "Login Failed";
     }
 }
